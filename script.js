@@ -194,7 +194,7 @@ function drawText() {
     const textY = canvas.height < 700 ? canvas.height * 0.12 : canvas.height * 0.15;
     
     // Use shorter text on very narrow screens
-    const text = canvas.width < 400 ? "🎉 Happy 2025 🎉" : "🎉 Happy New Year 🎉";
+    const text = canvas.width < 400 ? " " : "Happy New Year";
     ctx.fillText(text, canvas.width/2, textY);
 }
 
