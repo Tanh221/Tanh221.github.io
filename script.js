@@ -182,14 +182,17 @@ function update() {
 }
 
 function drawText() {
-    // Responsive font size based on canvas width
-    const fontSize = Math.min(64, canvas.width * 0.08);
+    // Responsive font size based on canvas width - smaller for mobile
+    const fontSize = Math.min(64, canvas.width * 0.065);
     ctx.font = `bold ${fontSize}px Arial`;
     ctx.textAlign = "center";
     ctx.fillStyle = `hsl(${textHue},100%,65%)`;
     ctx.shadowColor = ctx.fillStyle;
     ctx.shadowBlur = 20;
-    ctx.fillText("🎉 Happy New Year 🎉", canvas.width/2, canvas.height*0.15);
+    
+    // Position text lower on mobile for better visibility
+    const textY = canvas.height < 700 ? canvas.height * 0.12 : canvas.height * 0.15;
+    ctx.fillText("🎉 Happy New Year 🎉", canvas.width/2, textY);
 }
 
 function draw() {
