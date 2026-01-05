@@ -1,27 +1,19 @@
-/* ======================
-   🔊 SOUND
-====================== */
+/* Sound */
 const explosionSound = new Audio("sound_effect.mp4");
 explosionSound.volume = 0.15;
 
-/* ======================
-   STATE
-====================== */
+/* STATE */
 let fireworksRunning = false;
 let fireInterval = null;
 let fireworkCount = 0;
-/* ======================
-   CANVAS
-====================== */
+/* CANVAS */
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 
 canvas.width = innerWidth;
 canvas.height = innerHeight;
 
-/* ======================
-   🌌 STAR SKY
-====================== */
+/* STAR SKY */
 let stars = [];
 
 function createStars() {
@@ -49,9 +41,7 @@ function drawStars() {
     ctx.restore();
 }
 
-/* ======================
-   🌕 MOON
-====================== */
+/* MOON */
 function drawMoon() {
     const x = canvas.width - 120;
     const y = 120;
@@ -67,9 +57,7 @@ function drawMoon() {
     ctx.restore();
 }
 
-/* ======================
-   FIREWORK
-====================== */
+/* FIREWORK */
 const particles = [];
 const gravity = 0.05;
 const fireCount = 180;
@@ -137,7 +125,6 @@ function shapeVector(shape, t) {
 function createFirework(x, y) {
     if (particles.length > 6000) return;
 
-    // Play sound only every 3rd firework
     fireworkCount++;
     if (fireworkCount % 3 === 0) {
         const boom = explosionSound.cloneNode();
@@ -194,10 +181,10 @@ function drawText() {
     ctx.shadowColor = ctx.fillStyle;
     ctx.shadowBlur = 15;
     
-    // Position text
+    
     const textY = canvas.height < 700 ? canvas.height * 0.12 : canvas.height * 0.15;
     
-    // Use shorter text on very narrow screens
+    
     const text = canvas.width < 400 ? " " : "Happy New Year";
     ctx.fillText(text, canvas.width/2, textY);
 }
@@ -227,9 +214,7 @@ function animate() {
     requestAnimationFrame(animate);
 }
 
-/* ======================
-   START / STOP FIREWORKS
-====================== */
+/* START / STOP FIREWORKS */
 function startFireworks() {
     if (fireInterval) return;
     fireworksRunning = true;
@@ -248,9 +233,7 @@ function stopFireworks() {
     fireworksRunning = false;
 }
 
-/* ======================
-   UI EVENTS
-====================== */
+/* UI EVENTS */
 document.getElementById("startBtn").onclick = () => {
     document.getElementById("startScreen").style.display = "none";
     document.getElementById("toggleFireworks").style.display = "block";
@@ -269,9 +252,7 @@ toggleBtn.onclick = () => {
     }
 };
 
-/* ======================
-   RESIZE
-====================== */
+/* RESIZE */
 createStars();
 window.onresize = () => {
     canvas.width = innerWidth;
