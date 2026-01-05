@@ -16,8 +16,25 @@ let fireInterval = null;
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 
-canvas.width = innerWidth;
-canvas.height = innerHeight;
+/* ======================
+   📐 DPI RESIZE (CRITICAL)
+====================== */
+function resizeCanvas() {
+    const dpr = window.devicePixelRatio || 1;
+
+    canvas.width = window.innerWidth * dpr;
+    canvas.height = window.innerHeight * dpr;
+
+    canvas.style.width = window.innerWidth + "px";
+    canvas.style.height = window.innerHeight + "px";
+
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    createStars();
+}
+
+resizeCanvas();
+window.addEventListener("resize", resizeCanvas);
 
 /* ======================
    🌌 STAR SKY
@@ -26,7 +43,7 @@ let stars = [];
 
 function createStars() {
     stars = [];
-    const count = Math.floor(canvas.width * canvas.height / 9000);
+    const count = Math.floor((canvas.width * canvas.height) / 12000);
     for (let i = 0; i < count; i++) {
         stars.push({
             x: Math.random() * canvas.width,
@@ -53,14 +70,14 @@ function drawStars() {
    🌕 MOON
 ====================== */
 function drawMoon() {
-    const x = canvas.width - 120;
-    const y = window.innerWidth < 768 ? 160 : 120;
-    const r = 45;
+    const x = canvas.width / (window.devicePixelRatio || 1) - 90;
+    const y = 120;
+    const r = 40;
 
     ctx.save();
     ctx.fillStyle = "#f5f3ce";
     ctx.shadowColor = "#f5f3ce";
-    ctx.shadowBlur = 25;
+    ctx.shadowBlur = 20;
     ctx.beginPath();
     ctx.arc(x, y, r, 0, Math.PI * 2);
     ctx.fill();
@@ -72,7 +89,7 @@ function drawMoon() {
 ====================== */
 const particles = [];
 const gravity = 0.05;
-const fireCount = 180;
+const fireCount = 160;
 
 const shapes = [
     "circle","square","rectangle","triangle",
@@ -100,108 +117,109 @@ function shapeVector(shape, t) {
         case "circle": return { x: dx, y: dy };
         case "square": {
             const m = Math.max(Math.abs(dx), Math.abs(dy));
-            return { x: dx/m, y: dy/m };
+            return { x: dx / m, y: dy / m };
         }
         case "rectangle": {
             const w = 1.6, h = 1;
-            const m = Math.max(Math.abs(dx)/w, Math.abs(dy)/h);
-            return { x: dx/m, y: dy/m };
+            const m = Math.max(Math.abs(dx) / w, Math.abs(dy) / h);
+            return { x: dx / m, y: dy / m };
         }
         case "triangle": return { x: dx, y: Math.sin(t * 1.5) };
         case "star": {
             const r = Math.cos(5 * t);
-            return { x: dx*r, y: dy*r };
+            return { x: dx * r, y: dy * r };
         }
         case "flower": {
             const f = Math.sin(6 * t);
-            return { x: dx*f, y: dy*f };
+            return { x: dx * f, y: dy * f };
         }
         case "heart": {
-            const x = 16*Math.pow(Math.sin(t),3);
-            const y = 13*Math.cos(t)-5*Math.cos(2*t)
-                    -2*Math.cos(3*t)-Math.cos(4*t);
-            return { x: x/18, y: -y/18 };
+            const x = 16 * Math.pow(Math.sin(t), 3);
+            const y = 13 * Math.cos(t) - 5 * Math.cos(2 * t)
+                    - 2 * Math.cos(3 * t) - Math.cos(4 * t);
+            return { x: x / 18, y: -y / 18 };
         }
         case "spiral": {
-            const r = t/(Math.PI*2);
-            return { x: Math.cos(t)*r, y: Math.sin(t)*r };
+            const r = t / (Math.PI * 2);
+            return { x: Math.cos(t) * r, y: Math.sin(t) * r };
         }
         case "infinity": {
-            const d = 1 + Math.sin(t)**2;
-            return { x: Math.cos(t)/d, y: Math.sin(t)*Math.cos(t)/d };
+            const d = 1 + Math.sin(t) ** 2;
+            return { x: Math.cos(t) / d, y: Math.sin(t) * Math.cos(t) / d };
         }
     }
 }
 
 /* CREATE FIREWORK */
 function createFirework(x, y) {
-    if (particles.length > 6000) return;
+    if (particles.length > 5000) return;
 
     const boom = explosionSound.cloneNode();
-    const dx = x - canvas.width/2;
-    const dy = y - canvas.height/2;
-    const dist = Math.sqrt(dx*dx + dy*dy);
-    boom.volume = Math.max(0.1, 1 - dist/800);
+    boom.volume = 0.12;
     boom.play();
 
     const shape = randShape();
     const color = randColor();
-    const speed = rand(5, 9);
+    const speed = rand(4.5, 7.5);
 
     for (let i = 0; i < fireCount; i++) {
-        const t = Math.PI*2*i/fireCount;
+        const t = Math.PI * 2 * i / fireCount;
         const v = shapeVector(shape, t);
 
-        particles.push({
+        const p = {
             x, y,
-            vx: v.x*speed,
-            vy: v.y*speed,
+            vx: v.x * speed,
+            vy: v.y * speed,
             ay: gravity,
-            life: rand(80,140),
+            life: rand(80, 130),
             baseLife: 0,
-            size: rand(2,3),
+            size: rand(1.8, 2.6),
             alpha: 1,
             color
-        });
-        particles.at(-1).baseLife = particles.at(-1).life;
+        };
+        p.baseLife = p.life;
+        particles.push(p);
     }
 }
 
 /* UPDATE & DRAW */
 function update() {
-    for (let i = particles.length-1; i>=0; i--) {
+    for (let i = particles.length - 1; i >= 0; i--) {
         const p = particles[i];
         p.vy += p.ay;
         p.x += p.vx;
         p.y += p.vy;
         p.life--;
-        p.alpha = p.life/p.baseLife;
-        if (p.life <= 0) particles.splice(i,1);
+        p.alpha = p.life / p.baseLife;
+        if (p.life <= 0) particles.splice(i, 1);
     }
     textHue += 0.4;
 }
 
 function drawText() {
-    const isMobile = window.innerWidth < 768;
-    const fontSize = isMobile ? 36 : 64;
+    const w = canvas.width / (window.devicePixelRatio || 1);
+    const h = canvas.height / (window.devicePixelRatio || 1);
+    const base = Math.min(w, h);
+
+    const fontSize = Math.max(22, Math.min(base * 0.055, 48));
 
     ctx.font = `bold ${fontSize}px Arial`;
     ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+
     ctx.fillStyle = `hsl(${textHue},100%,65%)`;
     ctx.shadowColor = ctx.fillStyle;
-    ctx.shadowBlur = isMobile ? 12 : 20;
+    ctx.shadowBlur = fontSize * 0.25;
 
-    ctx.fillText(
-        "🎉 Happy New Year 🎉",
-        canvas.width / 2,
-        isMobile ? canvas.height * 0.12 : canvas.height * 0.15
-    );
+    ctx.fillText("🎉 Happy New Year 🎉", w / 2, h * 0.12);
 }
 
-
 function draw() {
+    const w = canvas.width / (window.devicePixelRatio || 1);
+    const h = canvas.height / (window.devicePixelRatio || 1);
+
     ctx.fillStyle = "black";
-    ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.fillRect(0, 0, w, h);
 
     drawStars();
     drawMoon();
@@ -210,7 +228,7 @@ function draw() {
         ctx.globalAlpha = p.alpha;
         ctx.fillStyle = p.color;
         ctx.beginPath();
-        ctx.arc(p.x,p.y,p.size,0,Math.PI*2);
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
         ctx.fill();
     });
     ctx.globalAlpha = 1;
@@ -232,11 +250,14 @@ function startFireworks() {
     fireworksRunning = true;
 
     fireInterval = setInterval(() => {
+        const w = canvas.width / (window.devicePixelRatio || 1);
+        const h = canvas.height / (window.devicePixelRatio || 1);
+
         createFirework(
-            rand(canvas.width*0.2, canvas.width*0.8),
-            rand(canvas.height*0.25, canvas.height*0.6)
+            rand(w * 0.2, w * 0.8),
+            rand(h * 0.25, h * 0.6)
         );
-    }, window.innerWidth < 768 ? 1800 : 1200);
+    }, 1600);
 }
 
 function stopFireworks() {
@@ -264,14 +285,4 @@ toggleBtn.onclick = () => {
         startFireworks();
         toggleBtn.textContent = "⏸ Stop Fireworks";
     }
-};
-
-/* ======================
-   RESIZE
-====================== */
-createStars();
-window.onresize = () => {
-    canvas.width = innerWidth;
-    canvas.height = innerHeight;
-    createStars();
 };
