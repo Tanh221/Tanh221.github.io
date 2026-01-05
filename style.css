@@ -1,0 +1,45 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    background: black;
+    overflow: hidden;
+}
+
+canvas {
+    display: block;
+}
+
+/* START SCREEN */
+#startScreen {
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(circle, #000 40%, #020024);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+}
+
+#startScreen h1 {
+    color: white;
+    font-size: 64px;
+    margin-bottom: 30px;
+    text-shadow: 0 0 20px gold;
+}
+
+#startBtn {
+    padding: 16px 40px;
+    font-size: 22px;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    color: black;
+    background: linear-gradient(135deg, gold, orange);
+    box-shadow: 0 0 20px gold;
+    transition: transform 0.2s;
+}
+
+#startBtn:hover {
+    transform: scale(1.1);
+}
