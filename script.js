@@ -183,7 +183,7 @@ function update() {
 
 function drawText() {
     // Responsive font size based on canvas width - smaller for mobile
-    const fontSize = Math.min(64, canvas.width * 0.065);
+    const fontSize = Math.min(48, canvas.width * 0.5);
     ctx.font = `bold ${fontSize}px Arial`;
     ctx.textAlign = "center";
     ctx.fillStyle = `hsl(${textHue},100%,65%)`;
