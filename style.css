@@ -107,4 +107,32 @@ canvas {
     box-shadow: 0 0 10px gold;
 }
 
+/* ======================
+   📱 MOBILE RESPONSIVE
+====================== */
+@media (max-width: 768px) {
+
+    #startBtn {
+        font-size: 18px;
+        padding: 14px 28px;
+    }
+
+    #startScreen h1 {
+        font-size: 42px;
+        text-align: center;
+    }
+
+    #controlBtn {
+        left: 10%;
+        bottom: 6%;
+        font-size: 14px;
+        padding: 10px 22px;
+    }
+
+    #signature {
+        font-size: 10px;
+        right: 6px;
+        bottom: 6px;
+    }
+}
 

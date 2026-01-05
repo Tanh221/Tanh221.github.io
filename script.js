@@ -54,7 +54,7 @@ function drawStars() {
 ====================== */
 function drawMoon() {
     const x = canvas.width - 120;
-    const y = 120;
+    const y = window.innerWidth < 768 ? 160 : 120;
     const r = 45;
 
     ctx.save();
@@ -182,13 +182,22 @@ function update() {
 }
 
 function drawText() {
-    ctx.font = "bold 64px Arial";
+    const isMobile = window.innerWidth < 768;
+    const fontSize = isMobile ? 36 : 64;
+
+    ctx.font = `bold ${fontSize}px Arial`;
     ctx.textAlign = "center";
     ctx.fillStyle = `hsl(${textHue},100%,65%)`;
     ctx.shadowColor = ctx.fillStyle;
-    ctx.shadowBlur = 20;
-    ctx.fillText("🎉 Happy New Year 🎉", canvas.width/2, canvas.height*0.15);
+    ctx.shadowBlur = isMobile ? 12 : 20;
+
+    ctx.fillText(
+        "🎉 Happy New Year 🎉",
+        canvas.width / 2,
+        isMobile ? canvas.height * 0.12 : canvas.height * 0.15
+    );
 }
+
 
 function draw() {
     ctx.fillStyle = "black";
