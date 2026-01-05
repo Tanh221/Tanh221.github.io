@@ -9,7 +9,7 @@ explosionSound.volume = 0.15;
 ====================== */
 let fireworksRunning = false;
 let fireInterval = null;
-
+let fireworkCount = 0;
 /* ======================
    CANVAS
 ====================== */
@@ -137,12 +137,16 @@ function shapeVector(shape, t) {
 function createFirework(x, y) {
     if (particles.length > 6000) return;
 
-    const boom = explosionSound.cloneNode();
-    const dx = x - canvas.width/2;
-    const dy = y - canvas.height/2;
-    const dist = Math.sqrt(dx*dx + dy*dy);
-    boom.volume = Math.max(0.1, 1 - dist/800);
-    boom.play().catch(() => {}); // Handle autoplay restrictions
+    // Play sound only every 3rd firework
+    fireworkCount++;
+    if (fireworkCount % 3 === 0) {
+        const boom = explosionSound.cloneNode();
+        const dx = x - canvas.width/2;
+        const dy = y - canvas.height/2;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        boom.volume = Math.max(0.1, 1 - dist/800);
+        boom.play().catch(() => {});
+    }
 
     const shape = randShape();
     const color = randColor();
