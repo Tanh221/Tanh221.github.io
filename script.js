@@ -271,6 +271,9 @@ function stopFireworks() {
 ====================== */
 document.getElementById("startBtn").onclick = () => {
     document.getElementById("startScreen").style.display = "none";
+    const canvas = document.getElementById("canvas");
+    canvas.style.display = "block";
+
     document.getElementById("toggleFireworks").style.display = "block";
     animate();
     startFireworks();
