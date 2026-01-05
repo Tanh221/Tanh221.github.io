@@ -224,7 +224,7 @@ function startFireworks() {
             rand(canvas.width*0.2, canvas.width*0.8),
             rand(canvas.height*0.25, canvas.height*0.6)
         );
-    }, window.innerWidth < 768 ? 1800 : 1200);
+    }, window.innerWidth < 768 ? 2000 : 1500);
 }
 
 function stopFireworks() {
