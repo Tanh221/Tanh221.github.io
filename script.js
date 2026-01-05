@@ -142,7 +142,7 @@ function createFirework(x, y) {
     const dy = y - canvas.height/2;
     const dist = Math.sqrt(dx*dx + dy*dy);
     boom.volume = Math.max(0.1, 1 - dist/800);
-    boom.play();
+    boom.play().catch(() => {}); // Handle autoplay restrictions
 
     const shape = randShape();
     const color = randColor();
@@ -182,7 +182,9 @@ function update() {
 }
 
 function drawText() {
-    ctx.font = "bold 64px Arial";
+    // Responsive font size based on canvas width
+    const fontSize = Math.min(64, canvas.width * 0.08);
+    ctx.font = `bold ${fontSize}px Arial`;
     ctx.textAlign = "center";
     ctx.fillStyle = `hsl(${textHue},100%,65%)`;
     ctx.shadowColor = ctx.fillStyle;

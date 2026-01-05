@@ -27,6 +27,23 @@ canvas {
     font-size: 64px;
     margin-bottom: 30px;
     text-shadow: 0 0 20px gold;
+    text-align: center;
+    padding: 0 20px;
+}
+
+/* Mobile responsiveness for start screen */
+@media (max-width: 768px) {
+  #startScreen h1 {
+    font-size: 36px;
+    margin-bottom: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  #startScreen h1 {
+    font-size: 28px;
+    margin-bottom: 15px;
+  }
 }
 
 #startBtn {
@@ -44,6 +61,21 @@ canvas {
 #startBtn:hover {
     transform: scale(1.1);
 }
+
+@media (max-width: 768px) {
+  #startBtn {
+    font-size: 18px;
+    padding: 14px 32px;
+  }
+}
+
+@media (max-width: 480px) {
+  #startBtn {
+    font-size: 16px;
+    padding: 12px 28px;
+  }
+}
+
 .signature {
   position: fixed;
   bottom: 8px;
@@ -54,6 +86,7 @@ canvas {
   z-index: 10;
   pointer-events: none;
 }
+
 @media (max-width: 600px) {
   .signature {
     font-size: 10px;
@@ -61,6 +94,7 @@ canvas {
     right: 8px;
   }
 }
+
 #toggleFireworks {
   position: fixed;
   bottom: 20px;
@@ -70,23 +104,24 @@ canvas {
   font-size: 14px;
   border-radius: 20px;
   border: none;
-  background: rgba(255, 255, 255, 0.15);
-  color: white;
+  background: rgba(255, 215, 0, 0.9);
+  color: black;
   backdrop-filter: blur(6px);
   cursor: pointer;
   z-index: 20;
   transition: all 0.2s ease;
+  box-shadow: 0 0 10px gold;
+  white-space: nowrap;
 }
 
 #toggleFireworks:hover {
-  background: rgba(255, 255, 255, 0.25);
+  background: rgba(255, 215, 0, 1);
 }
 
 #toggleFireworks:active {
   transform: translateX(-50%) scale(0.95);
 }
 
-/* Mobile nhỏ hơn */
 @media (max-width: 600px) {
   #toggleFireworks {
     font-size: 12px;
@@ -94,17 +129,11 @@ canvas {
     bottom: 16px;
   }
 }
-#toggleFireworks {
-    position: fixed;
-    bottom: 20px;
-    left: 10%;
-    padding: 10px 20px;
-    font-size: 14px;
-    border-radius: 20px;
-    border: none;
-    cursor: pointer;
-    background: rgba(255, 215, 0, 0.9);
-    box-shadow: 0 0 10px gold;
+
+@media (max-width: 400px) {
+  #toggleFireworks {
+    font-size: 11px;
+    padding: 7px 12px;
+    bottom: 12px;
+  }
 }
-
-
