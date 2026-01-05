@@ -7,8 +7,8 @@ explosionSound.volume = 0.15;
 /* ======================
    STATE
 ====================== */
-let started = false;
-let fireInterval;
+let fireworksRunning = false;
+let fireInterval = null;
 
 /* ======================
    CANVAS
@@ -210,25 +210,56 @@ function draw() {
 }
 
 function animate() {
-    if (!started) return;
     draw();
     update();
     requestAnimationFrame(animate);
 }
 
-/* START */
-document.getElementById("startBtn").onclick = () => {
-    started = true;
-    document.getElementById("startScreen").style.display = "none";
-    animate();
+/* ======================
+   START / STOP FIREWORKS
+====================== */
+function startFireworks() {
+    if (fireInterval) return;
+    fireworksRunning = true;
+
     fireInterval = setInterval(() => {
         createFirework(
             rand(canvas.width*0.2, canvas.width*0.8),
             rand(canvas.height*0.25, canvas.height*0.6)
         );
     }, window.innerWidth < 768 ? 1800 : 1200);
+}
+
+function stopFireworks() {
+    clearInterval(fireInterval);
+    fireInterval = null;
+    fireworksRunning = false;
+}
+
+/* ======================
+   UI EVENTS
+====================== */
+document.getElementById("startBtn").onclick = () => {
+    document.getElementById("startScreen").style.display = "none";
+    document.getElementById("toggleFireworks").style.display = "block";
+    animate();
+    startFireworks();
 };
 
+const toggleBtn = document.getElementById("toggleFireworks");
+toggleBtn.onclick = () => {
+    if (fireworksRunning) {
+        stopFireworks();
+        toggleBtn.textContent = "▶ Start Fireworks";
+    } else {
+        startFireworks();
+        toggleBtn.textContent = "⏸ Stop Fireworks";
+    }
+};
+
+/* ======================
+   RESIZE
+====================== */
 createStars();
 window.onresize = () => {
     canvas.width = innerWidth;
