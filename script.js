@@ -269,15 +269,29 @@ function stopFireworks() {
 /* ======================
    UI EVENTS
 ====================== */
-document.getElementById("startBtn").onclick = () => {
+const startBtn = document.getElementById("startBtn");
+
+function startApp(e) {
+    e.preventDefault();
+    e.stopPropagation();
+
     document.getElementById("startScreen").style.display = "none";
+
     const canvas = document.getElementById("canvas");
     canvas.style.display = "block";
 
     document.getElementById("toggleFireworks").style.display = "block";
+
     animate();
     startFireworks();
-};
+}
+
+// CLICK (desktop)
+startBtn.addEventListener("click", startApp);
+
+// TOUCH (mobile – BẮT BUỘC)
+startBtn.addEventListener("touchstart", startApp, { passive: false });
+
 
 const toggleBtn = document.getElementById("toggleFireworks");
 toggleBtn.onclick = () => {
