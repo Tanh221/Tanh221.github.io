@@ -6,6 +6,7 @@ explosionSound.volume = 0.15;
 let fireworksRunning = false;
 let fireInterval = null;
 let fireworkCount = 0;
+
 /* CANVAS */
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
@@ -15,6 +16,7 @@ canvas.height = innerHeight;
 
 /* STAR SKY */
 let stars = [];
+let meteors = [];
 
 function createStars() {
     stars = [];
@@ -29,6 +31,18 @@ function createStars() {
     }
 }
 
+function createMeteor() {
+    meteors.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height * 0.5,
+        vx: rand(3, 6),
+        vy: rand(2, 4),
+        length: rand(80, 120),
+        life: 100,
+        baseLife: 100
+    });
+}
+
 function drawStars() {
     ctx.save();
     ctx.fillStyle = "white";
@@ -37,6 +51,30 @@ function drawStars() {
         ctx.beginPath();
         ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
         ctx.fill();
+    });
+    ctx.restore();
+}
+
+function drawMeteors() {
+    ctx.save();
+    meteors.forEach(m => {
+        const alpha = m.life / m.baseLife;
+        const gradient = ctx.createLinearGradient(
+            m.x, m.y,
+            m.x - m.vx * m.length / 5, m.y - m.vy * m.length / 5
+        );
+        gradient.addColorStop(0, `rgba(255, 255, 255, ${alpha * 0.9})`);
+        gradient.addColorStop(0.5, `rgba(200, 220, 255, ${alpha * 0.6})`);
+        gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+        
+        ctx.strokeStyle = gradient;
+        ctx.lineWidth = 3;
+        ctx.shadowColor = 'rgba(255, 255, 255, 0.8)';
+        ctx.shadowBlur = 10;
+        ctx.beginPath();
+        ctx.moveTo(m.x, m.y);
+        ctx.lineTo(m.x - m.vx * m.length / 5, m.y - m.vy * m.length / 5);
+        ctx.stroke();
     });
     ctx.restore();
 }
@@ -72,9 +110,11 @@ let textHue = Math.random() * 360;
 function rand(min, max) {
     return Math.random() * (max - min) + min;
 }
+
 function randColor() {
     return `hsl(${Math.random() * 360},100%,60%)`;
 }
+
 function randShape() {
     return shapes[Math.floor(Math.random() * shapes.length)];
 }
@@ -126,7 +166,7 @@ function createFirework(x, y) {
     if (particles.length > 6000) return;
 
     fireworkCount++;
-    if (fireworkCount % 3 === 0) {
+    if (fireworkCount % 3 === 1) {
         const boom = explosionSound.cloneNode();
         const dx = x - canvas.width/2;
         const dy = y - canvas.height/2;
@@ -137,24 +177,36 @@ function createFirework(x, y) {
 
     const shape = randShape();
     const color = randColor();
-    const speed = rand(5, 9);
+    
+    // Only create layers for circle, square, rectangle
+    const needsLayers = ["circle", "square", "rectangle"].includes(shape);
+    const layers = needsLayers ? Math.floor(rand(5, 9)) : 1;
+    
+    for (let layer = 0; layer < layers; layer++) {
+        const speed = needsLayers 
+            ? rand(5, 9) * (0.4 + layer * 0.2)
+            : rand(5, 9);
+        const layerParticles = needsLayers 
+            ? Math.floor(fireCount / layers)
+            : fireCount;
+        
+        for (let i = 0; i < layerParticles; i++) {
+            const t = Math.PI*2*i/layerParticles;
+            const v = shapeVector(shape, t);
 
-    for (let i = 0; i < fireCount; i++) {
-        const t = Math.PI*2*i/fireCount;
-        const v = shapeVector(shape, t);
-
-        particles.push({
-            x, y,
-            vx: v.x*speed,
-            vy: v.y*speed,
-            ay: gravity,
-            life: rand(80,140),
-            baseLife: 0,
-            size: rand(2,3),
-            alpha: 1,
-            color
-        });
-        particles.at(-1).baseLife = particles.at(-1).life;
+            particles.push({
+                x, y,
+                vx: v.x*speed,
+                vy: v.y*speed,
+                ay: gravity,
+                life: rand(80,140),
+                baseLife: 0,
+                size: rand(2,3),
+                alpha: 1,
+                color
+            });
+            particles.at(-1).baseLife = particles.at(-1).life;
+        }
     }
 }
 
@@ -169,6 +221,23 @@ function update() {
         p.alpha = p.life/p.baseLife;
         if (p.life <= 0) particles.splice(i,1);
     }
+    
+    // Update meteors
+    for (let i = meteors.length - 1; i >= 0; i--) {
+        const m = meteors[i];
+        m.x += m.vx;
+        m.y += m.vy;
+        m.life--;
+        if (m.life <= 0 || m.x > canvas.width || m.y > canvas.height) {
+            meteors.splice(i, 1);
+        }
+    }
+    
+    // Randomly create new meteors (increased frequency)
+    if (Math.random() < 0.01) {
+        createMeteor();
+    }
+    
     textHue += 0.4;
 }
 
@@ -181,10 +250,7 @@ function drawText() {
     ctx.shadowColor = ctx.fillStyle;
     ctx.shadowBlur = 15;
     
-    
     const textY = canvas.height < 700 ? canvas.height * 0.12 : canvas.height * 0.15;
-    
-    
     const text = canvas.width < 400 ? " " : "Happy New Year";
     ctx.fillText(text, canvas.width/2, textY);
 }
@@ -194,6 +260,7 @@ function draw() {
     ctx.fillRect(0,0,canvas.width,canvas.height);
 
     drawStars();
+    drawMeteors();
     drawMoon();
 
     particles.forEach(p => {
