@@ -101,7 +101,7 @@ const gravity = 0.05;
 const fireCount = 180;
 
 const shapes = [
-    "circle","square","rectangle","triangle",
+    "circle","square","rectangle",
     "star","flower","heart","spiral","infinity"
 ];
 
@@ -135,7 +135,6 @@ function shapeVector(shape, t) {
             const m = Math.max(Math.abs(dx)/w, Math.abs(dy)/h);
             return { x: dx/m, y: dy/m };
         }
-        case "triangle": return { x: dx, y: Math.sin(t * 1.5) };
         case "star": {
             const r = Math.cos(5 * t);
             return { x: dx*r, y: dy*r };
