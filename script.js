@@ -236,7 +236,7 @@ function update() {
         }
     }
     
-    // Randomly create new meteors (increased frequency)
+    // Randomly create new meteors 
     if (Math.random() < 0.01) {
         createMeteor();
     }
