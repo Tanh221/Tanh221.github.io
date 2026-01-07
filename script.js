@@ -183,11 +183,11 @@ function createFirework(x, y) {
     
     // Only create layers for circle, square, rectangle
     const needsLayers = ["circle", "square", "rectangle"].includes(shape);
-    const layers = needsLayers ? Math.floor(rand(18,36)) : 1;
+    const layers = needsLayers ? Math.floor(rand(5,9)) : 1;
     
     for (let layer = 0; layer < layers; layer++) {
         const baseSpeed = needsLayers 
-            ? rand(5, 9) * (0.4 + layer * 0.1)
+            ? rand(5, 9) * (0.4 + layer * 0.2)
             : rand(5, 9);
         const speed = baseSpeed * sizeScale;
         const layerParticles = needsLayers 
