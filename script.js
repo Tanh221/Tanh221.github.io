@@ -177,14 +177,19 @@ function createFirework(x, y) {
     const shape = randShape();
     const color = randColor();
     
+    // Scale down fireworks on mobile
+    const isMobile = window.innerWidth < 768;
+    const sizeScale = isMobile ? 0.5 : 1;
+    
     // Only create layers for circle, square, rectangle
     const needsLayers = ["circle", "square", "rectangle"].includes(shape);
     const layers = needsLayers ? Math.floor(rand(5, 9)) : 1;
     
     for (let layer = 0; layer < layers; layer++) {
-        const speed = needsLayers 
+        const baseSpeed = needsLayers 
             ? rand(5, 9) * (0.4 + layer * 0.2)
             : rand(5, 9);
+        const speed = baseSpeed * sizeScale;
         const layerParticles = needsLayers 
             ? Math.floor(fireCount / layers)
             : fireCount;
@@ -200,7 +205,7 @@ function createFirework(x, y) {
                 ay: gravity,
                 life: rand(80,140),
                 baseLife: 0,
-                size: rand(2,3),
+                size: rand(2,3) * sizeScale,
                 alpha: 1,
                 color
             });
@@ -208,7 +213,6 @@ function createFirework(x, y) {
         }
     }
 }
-
 /* UPDATE & DRAW */
 function update() {
     for (let i = particles.length-1; i>=0; i--) {
