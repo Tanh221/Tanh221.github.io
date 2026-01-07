@@ -6,6 +6,7 @@ explosionSound.volume = 0.15;
 let fireworksRunning = false;
 let fireInterval = null;
 let fireworkCount = 0;
+let lastTime = performance.now();
 
 /* CANVAS */
 const canvas = document.getElementById("canvas");
@@ -213,35 +214,39 @@ function createFirework(x, y) {
         }
     }
 }
-/* UPDATE & DRAW */
-function update() {
+
+/* UPDATE & DRAW - NOW WITH DELTA TIME */
+function update(deltaTime) {
+    // Clamp deltaTime to prevent huge jumps if tab was inactive
+    deltaTime = Math.min(deltaTime, 3);
+    
     for (let i = particles.length-1; i>=0; i--) {
         const p = particles[i];
-        p.vy += p.ay;
-        p.x += p.vx;
-        p.y += p.vy;
-        p.life--;
+        p.vy += p.ay * deltaTime;
+        p.x += p.vx * deltaTime;
+        p.y += p.vy * deltaTime;
+        p.life -= deltaTime;
         p.alpha = p.life/p.baseLife;
         if (p.life <= 0) particles.splice(i,1);
     }
     
-    // Update meteors
+    // Update meteors with delta time
     for (let i = meteors.length - 1; i >= 0; i--) {
         const m = meteors[i];
-        m.x += m.vx;
-        m.y += m.vy;
-        m.life--;
+        m.x += m.vx * deltaTime;
+        m.y += m.vy * deltaTime;
+        m.life -= deltaTime;
         if (m.life <= 0 || m.x > canvas.width || m.y > canvas.height) {
             meteors.splice(i, 1);
         }
     }
     
-    // Randomly create new meteors 
-    if (Math.random() < 0.01) {
+    // Randomly create new meteors (probability adjusted for frame rate)
+    if (Math.random() < 0.01 * deltaTime) {
         createMeteor();
     }
     
-    textHue += 0.4;
+    textHue += 0.4 * deltaTime;
 }
 
 function drawText() {
@@ -278,9 +283,13 @@ function draw() {
     drawText();
 }
 
-function animate() {
+function animate(currentTime) {
+    // Calculate delta time (normalized to 60 FPS as baseline)
+    const deltaTime = (currentTime - lastTime) / 16.67;
+    lastTime = currentTime;
+    
     draw();
-    update();
+    update(deltaTime);
     requestAnimationFrame(animate);
 }
 
@@ -307,7 +316,8 @@ function stopFireworks() {
 document.getElementById("startBtn").onclick = () => {
     document.getElementById("startScreen").style.display = "none";
     document.getElementById("toggleFireworks").style.display = "block";
-    animate();
+    lastTime = performance.now(); // Initialize timing
+    animate(lastTime);
     startFireworks();
 };
 
