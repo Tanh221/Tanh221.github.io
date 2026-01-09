@@ -95,11 +95,21 @@ canvas {
   }
 }
 
-#toggleFireworks {
+.controls {
   position: fixed;
   bottom: 20px;
   left: 50%;
   transform: translateX(-50%);
+  display: none;
+  gap: 10px;
+  z-index: 20;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  padding: 0 10px;
+}
+
+.controls button, .controls select {
   padding: 10px 18px;
   font-size: 14px;
   border-radius: 20px;
@@ -108,32 +118,44 @@ canvas {
   color: black;
   backdrop-filter: blur(6px);
   cursor: pointer;
-  z-index: 20;
   transition: all 0.2s ease;
   box-shadow: 0 0 10px gold;
   white-space: nowrap;
 }
 
-#toggleFireworks:hover {
+.controls button:hover, .controls select:hover {
   background: rgba(255, 215, 0, 1);
 }
 
-#toggleFireworks:active {
-  transform: translateX(-50%) scale(0.95);
+.controls button:active {
+  transform: scale(0.95);
+}
+
+.controls select {
+  padding: 10px 12px;
+  cursor: pointer;
 }
 
 @media (max-width: 600px) {
-  #toggleFireworks {
+  .controls {
+    bottom: 16px;
+    gap: 8px;
+  }
+  
+  .controls button, .controls select {
     font-size: 12px;
     padding: 8px 14px;
-    bottom: 16px;
   }
 }
 
 @media (max-width: 400px) {
-  #toggleFireworks {
+  .controls {
+    bottom: 12px;
+    gap: 6px;
+  }
+  
+  .controls button, .controls select {
     font-size: 11px;
     padding: 7px 12px;
-    bottom: 12px;
   }
 }

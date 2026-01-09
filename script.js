@@ -1,12 +1,43 @@
+/* CONSTANTS */
+const MAX_PARTICLES = 3000;
+const PARTICLE_CLEANUP_BATCH = 150;
+const METEOR_SPAWN_CHANCE = 0.01;
+const MAX_AUDIO_NODES = 8;
 
 /* STATE */
 let fireworksRunning = false;
 let fireInterval = null;
 let fireworkCount = 0;
 let lastTime = performance.now();
-/* Sound */
-const explosionSound = new Audio("sound_effect.mp4");
-explosionSound.volume = 0.15;
+let soundEnabled = true;
+let currentFrequency = 1500;
+
+/* AUDIO MANAGEMENT */
+let activeAudioCount = 0;
+
+function playExplosionSound(volume) {
+    if (!soundEnabled) return;
+    
+    // Limit concurrent sounds
+    if (activeAudioCount >= MAX_AUDIO_NODES) return;
+    
+    const audio = new Audio("sound_effect.mp4");
+    audio.volume = volume * 0.15;
+    activeAudioCount++;
+    
+    audio.onended = () => {
+        activeAudioCount--;
+        audio.remove();
+    };
+    
+    audio.onerror = () => {
+        activeAudioCount--;
+    };
+    
+    audio.play().catch(() => {
+        activeAudioCount--;
+    });
+}
 
 /* CANVAS */
 const canvas = document.getElementById("canvas");
@@ -163,26 +194,26 @@ function shapeVector(shape, t) {
 
 /* CREATE FIREWORK */
 function createFirework(x, y) {
-    if (particles.length > 6000) return;
+    // Memory management - prevent unlimited growth
+    if (particles.length > MAX_PARTICLES) {
+        particles.splice(0, PARTICLE_CLEANUP_BATCH);
+    }
 
     fireworkCount++;
     if (fireworkCount % 4 === 1) {
-        const boom = explosionSound.cloneNode();
         const dx = x - canvas.width/2;
         const dy = y - canvas.height/2;
         const dist = Math.sqrt(dx*dx + dy*dy);
-        boom.volume = Math.max(0.1, 1 - dist/800);
-        boom.play().catch(() => {});
+        const volume = Math.max(0.1, 1 - dist/800);
+        playExplosionSound(volume);
     }
 
     const shape = randShape();
     const color = randColor();
     
-    // Scale down fireworks on mobile
     const isMobile = window.innerWidth < 768;
     const sizeScale = isMobile ? 0.5 : 1;
     
-    // Only create layers for circle, square, rectangle
     const needsLayers = ["circle", "square", "rectangle"].includes(shape);
     const layers = needsLayers ? Math.floor(rand(5,9)) : 1;
     
@@ -215,9 +246,8 @@ function createFirework(x, y) {
     }
 }
 
-/* UPDATE & DRAW - NOW WITH DELTA TIME */
+/* UPDATE & DRAW */
 function update(deltaTime) {
-    // Clamp deltaTime to prevent huge jumps if tab was inactive
     deltaTime = Math.min(deltaTime, 3);
     
     for (let i = particles.length-1; i>=0; i--) {
@@ -230,7 +260,6 @@ function update(deltaTime) {
         if (p.life <= 0) particles.splice(i,1);
     }
     
-    // Update meteors with delta time
     for (let i = meteors.length - 1; i >= 0; i--) {
         const m = meteors[i];
         m.x += m.vx * deltaTime;
@@ -241,8 +270,7 @@ function update(deltaTime) {
         }
     }
     
-    // Randomly create new meteors (probability adjusted for frame rate)
-    if (Math.random() < 0.01 * deltaTime) {
+    if (Math.random() < METEOR_SPAWN_CHANCE * deltaTime) {
         createMeteor();
     }
     
@@ -250,7 +278,6 @@ function update(deltaTime) {
 }
 
 function drawText() {
-    // Much smaller font size for mobile
     const fontSize = Math.min(64, canvas.width * 0.05);
     ctx.font = `bold ${fontSize}px Arial`;
     ctx.textAlign = "center";
@@ -259,7 +286,7 @@ function drawText() {
     ctx.shadowBlur = 15;
     
     const textY = canvas.height < 700 ? canvas.height * 0.12 : canvas.height * 0.15;
-    const text = canvas.width < 400 ? " " : "Happy New Year";
+    const text = canvas.width < 400 ? "🎆" : "Happy New Year";
     ctx.fillText(text, canvas.width/2, textY);
 }
 
@@ -284,7 +311,6 @@ function draw() {
 }
 
 function animate(currentTime) {
-    // Calculate delta time (normalized to 60 FPS as baseline)
     const deltaTime = (currentTime - lastTime) / 16.67;
     lastTime = currentTime;
     
@@ -303,7 +329,7 @@ function startFireworks() {
             rand(canvas.width*0.2, canvas.width*0.8),
             rand(canvas.height*0.25, canvas.height*0.6)
         );
-    }, window.innerWidth < 768 ? 2000 : 1500);
+    }, currentFrequency);
 }
 
 function stopFireworks() {
@@ -312,24 +338,42 @@ function stopFireworks() {
     fireworksRunning = false;
 }
 
+function updateFireworkFrequency(frequency) {
+    currentFrequency = frequency;
+    if (fireworksRunning) {
+        stopFireworks();
+        startFireworks();
+    }
+}
+
 /* UI EVENTS */
 document.getElementById("startBtn").onclick = () => {
     document.getElementById("startScreen").style.display = "none";
-    document.getElementById("toggleFireworks").style.display = "block";
-    lastTime = performance.now(); // Initialize timing
+    document.getElementById("controls").style.display = "flex";
+    lastTime = performance.now();
     animate(lastTime);
     startFireworks();
 };
 
-const toggleBtn = document.getElementById("toggleFireworks");
-toggleBtn.onclick = () => {
+document.getElementById("toggleFireworks").onclick = () => {
+    const btn = document.getElementById("toggleFireworks");
     if (fireworksRunning) {
         stopFireworks();
-        toggleBtn.textContent = "▶ Start Fireworks";
+        btn.textContent = "▶ Start";
     } else {
         startFireworks();
-        toggleBtn.textContent = "⏸ Stop Fireworks";
+        btn.textContent = "⏸ Stop";
     }
+};
+
+document.getElementById("toggleSound").onclick = () => {
+    const btn = document.getElementById("toggleSound");
+    soundEnabled = !soundEnabled;
+    btn.textContent = soundEnabled ? "🔊 Sound" : "🔇 Muted";
+};
+
+document.getElementById("frequencySelect").onchange = (e) => {
+    updateFireworkFrequency(parseInt(e.target.value));
 };
 
 /* RESIZE */
