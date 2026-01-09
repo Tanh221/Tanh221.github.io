@@ -133,15 +133,16 @@ const gravity = 0.05;
 const fireCount = 180;
 
 const shapes = [
-    "circle","square","rectangle",
+    "circle","rectangle",
     "star","flower","heart","spiral","infinity","text"
 ];
 
 // Fixed list of text options for text fireworks
 const textOptions = [
-    "HAPPY",
-    "NEW YEAR",
-    "Happy New Year"
+    "Happy",
+    "New Year",
+    "Happy New Year",
+    "Best Wishes"
 
 ];
 
@@ -220,10 +221,6 @@ function shapeVector(shape, t) {
 
     switch (shape) {
         case "circle": return { x: dx, y: dy };
-        case "square": {
-            const m = Math.max(Math.abs(dx), Math.abs(dy));
-            return { x: dx/m, y: dy/m };
-        }
         case "rectangle": {
             const w = 1.6, h = 1;
             const m = Math.max(Math.abs(dx)/w, Math.abs(dy)/h);
