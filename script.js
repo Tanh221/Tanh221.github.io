@@ -1,12 +1,12 @@
-/* Sound */
-const explosionSound = new Audio("sound_effect.mp4");
-explosionSound.volume = 0.15;
 
 /* STATE */
 let fireworksRunning = false;
 let fireInterval = null;
 let fireworkCount = 0;
 let lastTime = performance.now();
+/* Sound */
+const explosionSound = new Audio("sound_effect.mp4");
+explosionSound.volume = 0.15;
 
 /* CANVAS */
 const canvas = document.getElementById("canvas");
