@@ -15,10 +15,18 @@
 </div>
 
 <canvas id="canvas"></canvas>
-<div class="signature">From Tanh with love </div>
-<button id="toggleFireworks" style="display:none">
-    ⏸ Stop Fireworks
-</button>
+<div class="signature">From Tanh with love</div>
+
+<div class="controls" id="controls">
+    <button id="toggleFireworks">⏸ Stop</button>
+    <button id="toggleSound">🔊 Sound</button>
+    <select id="frequencySelect">
+        <option value="3000">Slow</option>
+        <option value="1500" selected>Medium</option>
+        <option value="800">Fast</option>
+        <option value="400">Very Fast</option>
+    </select>
+</div>
 
 <script src="script.js"></script>
 </body>
