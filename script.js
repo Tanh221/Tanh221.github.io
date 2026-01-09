@@ -134,8 +134,70 @@ const fireCount = 180;
 
 const shapes = [
     "circle","square","rectangle",
-    "star","flower","heart","spiral","infinity"
+    "star","flower","heart","spiral","infinity","text"
 ];
+
+// Fixed list of text options for text fireworks
+const textOptions = [
+    "HAPPY",
+    "NEW YEAR",
+    "Happy New Year"
+
+];
+
+let textPointsCache = {};
+let currentTextIndex = 0;
+
+/* GENERATE TEXT POINTS */
+function generateTextPoints(text, fontSize = 80) {
+    const tempCanvas = document.createElement('canvas');
+    const tempCtx = tempCanvas.getContext('2d');
+    
+    // Set canvas size
+    tempCanvas.width = 800;
+    tempCanvas.height = 200;
+    
+    // Draw text
+    tempCtx.font = `bold ${fontSize}px Arial`;
+    tempCtx.textAlign = 'center';
+    tempCtx.textBaseline = 'middle';
+    tempCtx.fillStyle = 'white';
+    tempCtx.fillText(text, tempCanvas.width / 2, tempCanvas.height / 2);
+    
+    // Get image data
+    const imageData = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
+    const points = [];
+    
+    // Sample pixels (every 3rd pixel for performance)
+    for (let y = 0; y < tempCanvas.height; y += 3) {
+        for (let x = 0; x < tempCanvas.width; x += 3) {
+            const i = (y * tempCanvas.width + x) * 4;
+            if (imageData.data[i + 3] > 128) { // Alpha channel
+                // Normalize coordinates to -1 to 1 range
+                points.push({
+                    x: (x - tempCanvas.width / 2) / (tempCanvas.width / 2),
+                    y: (y - tempCanvas.height / 2) / (tempCanvas.height / 2)
+                });
+            }
+        }
+    }
+    
+    return points;
+}
+
+// Pre-generate all text points on load
+function initializeTextPoints() {
+    textOptions.forEach(text => {
+        textPointsCache[text] = generateTextPoints(text);
+    });
+}
+
+// Get next text in rotation
+function getNextTextPoints() {
+    const text = textOptions[currentTextIndex];
+    currentTextIndex = (currentTextIndex + 1) % textOptions.length;
+    return textPointsCache[text];
+}
 
 let textHue = Math.random() * 360;
 
@@ -189,6 +251,10 @@ function shapeVector(shape, t) {
             const d = 1 + Math.sin(t)**2;
             return { x: Math.cos(t)/d, y: Math.sin(t)*Math.cos(t)/d };
         }
+        case "text": {
+            // Return null, handled differently in createFirework
+            return null;
+        }
     }
 }
 
@@ -214,6 +280,32 @@ function createFirework(x, y) {
     const isMobile = window.innerWidth < 768;
     const sizeScale = isMobile ? 0.5 : 1;
     
+    // Handle text shape differently
+    if (shape === "text") {
+        const textPoints = getNextTextPoints(); // Get next text in rotation
+        if (textPoints.length === 0) return; // No text points generated
+        
+        const scale = 150 * sizeScale; // Scale factor for text size
+        const speed = rand(2, 4) * sizeScale;
+        
+        textPoints.forEach(point => {
+            particles.push({
+                x, y,
+                vx: point.x * speed,
+                vy: point.y * speed,
+                ay: gravity * 0.5, // Less gravity for text
+                life: rand(120, 180), // Longer life
+                baseLife: 0,
+                size: rand(2, 4) * sizeScale,
+                alpha: 1,
+                color
+            });
+            particles.at(-1).baseLife = particles.at(-1).life;
+        });
+        return;
+    }
+    
+    // Original shape logic
     const needsLayers = ["circle", "square", "rectangle"].includes(shape);
     const layers = needsLayers ? Math.floor(rand(5,9)) : 1;
     
@@ -229,6 +321,7 @@ function createFirework(x, y) {
         for (let i = 0; i < layerParticles; i++) {
             const t = Math.PI*2*i/layerParticles;
             const v = shapeVector(shape, t);
+            if (!v) continue; // Skip if null
 
             particles.push({
                 x, y,
@@ -376,8 +469,12 @@ document.getElementById("frequencySelect").onchange = (e) => {
     updateFireworkFrequency(parseInt(e.target.value));
 };
 
+/* INITIALIZE */
+initializeTextPoints(); // Pre-generate all text points
+
 /* RESIZE */
 createStars();
+initializeTextPoints(); // Initialize text points on load
 window.onresize = () => {
     canvas.width = innerWidth;
     canvas.height = innerHeight;
