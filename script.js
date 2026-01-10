@@ -143,7 +143,6 @@ const textOptions = [
     "New Year",
     "Happy New Year",
     "Best Wishes",
-    "From Tanh with love <3"
 ];
 
 let textPointsCache = {};
