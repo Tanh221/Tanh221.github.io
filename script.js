@@ -2,7 +2,7 @@
 const MAX_PARTICLES = 3000;
 const PARTICLE_CLEANUP_BATCH = 150;
 const METEOR_SPAWN_CHANCE = 0.01;
-const MAX_AUDIO_NODES = 8;
+const MAX_AUDIO_NODES = 36;
 
 /* STATE */
 let fireworksRunning = false;
