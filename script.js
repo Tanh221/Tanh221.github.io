@@ -137,13 +137,13 @@ const shapes = [
     "star","flower","heart","spiral","infinity","text"
 ];
 
-// Fixed list of text options for text fireworks
+// list of text options for fireworks
 const textOptions = [
     "Happy",
     "New Year",
     "Happy New Year",
-    "Best Wishes"
-
+    "Best Wishes",
+    "From Tanh with love <3"
 ];
 
 let textPointsCache = {};
@@ -277,7 +277,7 @@ function createFirework(x, y) {
     const isMobile = window.innerWidth < 768;
     const sizeScale = isMobile ? 0.5 : 1;
     
-    // Handle text shape differently
+    // Handle text shape
     if (shape === "text") {
         const textPoints = getNextTextPoints(); // Get next text in rotation
         if (textPoints.length === 0) return; // No text points generated
